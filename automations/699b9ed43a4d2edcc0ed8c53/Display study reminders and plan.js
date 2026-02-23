@@ -13,7 +13,7 @@
       setContext("study_reminder_output", studyPlan)
       return
     }
-    // Display output by structured sections
+    // Display output by structured sections in correct order
     function printSection(header, values) {
       console.log("\n--- " + header + " ---")
       if (!values || values.length === 0 || values === ":not found") {
@@ -27,10 +27,12 @@
       }
     }
     console.log("========== PERSONALIZED STUDY PLAN ==========")
-    printSection("SUBJECTS DETECTED", studyPlan.subjects)
-    printSection("UPCOMING EXAMS", studyPlan.exams)
-    printSection("ASSIGNMENT DEADLINES", studyPlan.deadlines || studyPlan.assignments)
+    printSection("SUBJECTS", studyPlan.subjects)
+    printSection("ASSIGNMENTS", studyPlan.assignments)
+    printSection("EXAMS", studyPlan.exams)
+    printSection("DEADLINES", studyPlan.deadlines)
     printSection("STUDY GOALS", studyPlan.study_goals)
+    printSection("DAILY STUDY TIME", studyPlan.daily_study_time)
     printSection("7-DAY STUDY PLAN", studyPlan.study_plan)
     printSection("SMART REMINDERS", studyPlan.reminders)
     printSection("PROGRESS INSIGHTS", studyPlan.progress_insights)

@@ -8,8 +8,31 @@ const run = async () => {
       console.warn("No valid academic content provided. Prompting for better input.")
       return
     }
-    console.log("Extracting academic info: subjects, assignments, deadlines, exams, study goals...")
-    const aiPrompt = `Read the following text from a student. Extract and list the following as structured JSON:\n- Subjects detected\n- Detailed assignments and their deadlines\n- Exam dates (with subjects if possible)\n- Study goals or learning targets\nIf any element is missing or unclear, write \":not found\" or empty list for that field.\nText:\n"""${fileContent}"""`
+    console.log("Extracting ALL academic fields from text: subjects, assignments, deadlines, exams, study goals, daily study time...")
+    const aiPrompt = `You are an academic data extractor.
+Read ALL plain sentences from the student document below. Detect and extract these fields, even if listed only in simple sentences or in partial/weak format:
+- Subjects
+- Assignments
+- Exams
+- Deadlines
+- Study Goals
+- Daily Study Time
+Return output in strict JSON with the following top-level objects (sections):
+{
+  "subjects": ["..."],
+  "assignments": ["..."],
+  "exams": ["..."],
+  "deadlines": ["..."],
+  "study_goals": ["..."],
+  "daily_study_time": "..."
+}
+Instructions:
+- If ANY academic keyword (Subject, Assignment, Exam, Deadline, Goal, Study) is present, NEVER show ":not found" or empty lists; always detect and output whatever is present as best effort, even if only partial or weak (e.g., use detected plain sentence fragments).
+- Output empty lists ONLY if there is absolutely no mention of that field. If ALL academic context is absent, return: {"message": "No academic content detected, please provide a more relevant file."}
+- Prefer actionable and readable output (e.g., group partial info under closest-fit field).
+
+Student Document:
+"""${fileContent}"""`
     const summaryResult = await TurboticOpenAI([{ role: "user", content: aiPrompt }], {
       model: "gpt-4.1",
       temperature: 0

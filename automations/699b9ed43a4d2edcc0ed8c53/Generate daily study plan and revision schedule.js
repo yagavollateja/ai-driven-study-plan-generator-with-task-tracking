@@ -1,4 +1,4 @@
-// Generate a fully structured academic study plan with day-wise schedule, reminders and fallback
+// Generate a fully structured academic study plan with day-wise schedule, reminders, and fallback
 ;(async () => {
   try {
     const summary = getContext("summary")
@@ -10,6 +10,7 @@
         deadlines: [],
         exams: [],
         study_goals: [],
+        daily_study_time: "",
         study_plan: [
           {
             day: "Day 1",
@@ -23,8 +24,16 @@
       console.log("Default fallback study plan set in context.")
       return
     }
-    console.log("Generating structured 7-day plan, reminders, and progress from summary...")
-    const plannerPrompt = `You are an academic study-planning assistant. Given the following academic content summary in JSON or text, produce a structured JSON object containing:\n- subjects: All subjects detected (list of strings)\n- assignments: List of assignments and their deadlines (array of {assignment, deadline})\n- deadlines: Upcoming assignment deadlines (array of {assignment, deadline})\n- exams: All upcoming exams with subjects and dates (array of {subject, exam_date})\n- study_goals: Academic or personal study goals (array of strings)\n- study_plan: Day-wise 7-day plan (array of {day, tasks, focus, hours}) — Prioritize urgent tasks first! Assume student studies 2 hours/day unless otherwise stated.\n- reminders: Friendly actionable messages for each day (7 messages)\n- progress_insights: Brief analytics/smart commentary (text)\nIf any section is missing or unclear, fill it with \":not found\" or leave blank.\nAcademic summary:\n${summary}`
+    console.log("Generating structured 7-day plan, reminders, and progress from summary including daily study time, if available...")
+    // Pass daily_study_time into prompt if present
+    let structuredSummary
+    try {
+      structuredSummary = typeof summary === "string" ? JSON.parse(summary) : summary
+    } catch {
+      structuredSummary = summary
+    }
+    const dailyStudyTime = structuredSummary && structuredSummary.daily_study_time ? structuredSummary.daily_study_time : undefined
+    const plannerPrompt = `You are an academic study-planning assistant. Given the following academic content summary in JSON, produce a structured JSON object containing:\n- subjects: All subjects detected (list of strings)\n- assignments: List of assignments and their deadlines (array of {assignment, deadline})\n- deadlines: Upcoming assignment deadlines (array of {assignment, deadline})\n- exams: All upcoming exams with subjects and dates (array of {subject, exam_date})\n- study_goals: Academic or personal study goals (array of strings)\n- daily_study_time: How many hours per day student should study (string, e.g. '2 hours', '90 minutes', etc.)\n- study_plan: Day-wise 7-day plan (array of {day, tasks, focus, hours}), customized so that daily total hours matches 'daily_study_time' if available, else assume 2 hours.\n- reminders: Actionable messages for each day (7 messages)\n- progress_insights: Brief analytics/smart commentary (text)\nIf any section is missing, fill it as best as possible from the input. Never output :not found if any relevant field exists.\nAcademic summary with fields:\n${JSON.stringify(structuredSummary, null, 2)}\n${dailyStudyTime ? `\nDAILY STUDY TIME TO RESPECT IN PLAN: ${dailyStudyTime}` : ""}`
     const planResult = await TurboticOpenAI(
       [
         {

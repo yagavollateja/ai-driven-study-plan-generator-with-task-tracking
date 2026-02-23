@@ -1,0 +1,18 @@
+{
+  "automationId": "699b9ed43a4d2edcc0ed8c53",
+  "automationName": "Unnamed Automation",
+  "version": "v1",
+  "mode": "multi-file",
+  "dependencies": [
+    {
+      "id": "1771807131675_3",
+      "name": "fs",
+      "version": "latest"
+    }
+  ],
+  "environmentVariables": [
+    "STUDENT_FILE_PATH",
+    "STUDENT_EMAIL"
+  ],
+  "syncedAt": "2026-02-23T00:59:40.374Z"
+}
